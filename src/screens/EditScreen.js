@@ -4,22 +4,24 @@ import Header from "../components/Header";
 import CustomInputText from "../components/CustomTextInput";
 import CustomDatePicker from "../components/CustomDatePicker";
 import { Colors } from "../constants/colors";
-import {widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Spinner from "react-native-loading-spinner-overlay";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Activity from "../utils/Activity";
 import { useDispatch, useSelector } from "react-redux";
 import { SetActivities } from "../redux/actions/authActions";
 
-const EditScreen = ({navigation, route}) => {
+const EditScreen = ({ navigation, route }) => {
   let type = route.params.type;
   const activities = useSelector(state => state.auth.activities);
-  let [sel, setSel]= useState(activities[route.params.index]);
-  const [date, setDate] = useState(type=="Add" ? new Date() : new Date(sel.standard));
-  const [planned, setPlanned] = useState(type=="Add" ? new Date() : new Date(sel.planned));
-  const [actual, setActual] = useState(type=="Add" ? new Date() : new Date(sel.actual));
-  const [activity, setActivity] = useState(type=="Add" ? "" : sel.activity);
-  const [causes, setCauses] = useState(type=="Add" ? "" : sel.causes);
+  const selIndex = useSelector(state => state.auth.index);
+
+  let [sel, setSel] = useState(activities[route.params.index]);
+  const [date, setDate] = useState(type == "Add" ? new Date() : new Date(sel.standard));
+  const [planned, setPlanned] = useState(type == "Add" ? new Date() : new Date(sel.planned));
+  const [actual, setActual] = useState(type == "Add" ? new Date() : new Date(sel.actual));
+  const [activity, setActivity] = useState(type == "Add" ? "" : sel.activity);
+  const [causes, setCauses] = useState(type == "Add" ? "" : sel.causes);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   console.log("Activities ==> ", sel);
@@ -52,18 +54,23 @@ const EditScreen = ({navigation, route}) => {
       actual: actual,
       planned: planned,
       causes: causes,
-    }
-    if(type==="Add") {
+    };
+    if (type === "Add") {
       setLoading(true);
       let data = [...activities];
-      if(data) {
+      if (data) {
         data.push(newAct);
       } else {
         data = [];
-        data.push(newAct)
+        data.push(newAct);
       }
       dispatch(SetActivities(data));
-      await AsyncStorage.setItem("DATA", JSON.stringify(data));
+      let allActs = await AsyncStorage.getItem("DATA");
+      console.log(allActs);
+      allActs = JSON.parse(allActs);
+      console.log(allActs);
+      allActs[selIndex].data = data;
+      await AsyncStorage.setItem("DATA", JSON.stringify(allActs));
       navigation.goBack();
       setLoading(false);
     } else {
@@ -71,13 +78,16 @@ const EditScreen = ({navigation, route}) => {
       let data = [...activities];
       data[route.params.index] = newAct;
       dispatch(SetActivities(data));
-      await AsyncStorage.setItem("DATA", JSON.stringify(data));
+      let allActs = await AsyncStorage.getItem("DATA");
+      allActs = JSON.parse(allActs);
+      allActs[selIndex].data = data;
+      await AsyncStorage.setItem("DATA", JSON.stringify(allActs));
       navigation.goBack();
       setLoading(false);
     }
-  }
+  };
 
-  const deleteHandler = async () =>  {
+  const deleteHandler = async () => {
     setLoading(true);
     let data = [...activities];
     setDate(new Date());
@@ -90,19 +100,19 @@ const EditScreen = ({navigation, route}) => {
     await AsyncStorage.setItem("DATA", JSON.stringify(data));
     navigation.goBack();
     setLoading(false);
-  }
+  };
 
-  return(
+  return (
     <>
       <View>
         <Spinner
           visible={loading}
-          textContent={'Loading...'}
+          textContent={"Loading..."}
           textStyle={styles.spinnerTextStyle}
           color={Colors.primary}
         />
       </View>
-      <Header title={type==="Add"? "Add Activity" : "Edit Activity"} />
+      <Header title={type === "Add" ? "Add Activity" : "Edit Activity"} />
       <ScrollView style={styles.container}>
         <Text style={styles.label}>Activity:</Text>
         <CustomInputText
@@ -145,16 +155,16 @@ const EditScreen = ({navigation, route}) => {
           placeholder={"Causes"}
         />
         <TouchableOpacity onPress={submitHandler} style={styles.button}>
-            <Text style={styles.text}>{type==="Add"?  "ADD" : "UPDATE"}</Text>
+          <Text style={styles.text}>{type === "Add" ? "ADD" : "UPDATE"}</Text>
         </TouchableOpacity>
-        {type==="Edit" && <TouchableOpacity onPress={deleteHandler} style={styles.buttonRed}>
+        {type === "Edit" && <TouchableOpacity onPress={deleteHandler} style={styles.buttonRed}>
           <Text style={styles.text}>DELETE</Text>
         </TouchableOpacity>}
       </ScrollView>
     </>
 
   );
-}
+};
 
 
 const styles = StyleSheet.create({
@@ -175,7 +185,7 @@ const styles = StyleSheet.create({
     width: wp(70),
     marginTop: hp(4),
     alignSelf: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonRed: {
     backgroundColor: Colors.danger,
@@ -184,14 +194,14 @@ const styles = StyleSheet.create({
     width: wp(70),
     marginTop: hp(4),
     alignSelf: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   text: {
     fontSize: wp(4.4),
     color: Colors.white,
-    textTransform:"uppercase",
+    textTransform: "uppercase",
 
-  }
-})
+  },
+});
 
 export default EditScreen;

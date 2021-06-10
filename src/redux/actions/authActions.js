@@ -6,3 +6,10 @@ export const SetActivities = (data) => {
     payload: data,
   }
 }
+
+export const setIndex = (index) => {
+  return {
+    type: REDUX.SET_INDEX,
+    payload: index,
+  }
+}

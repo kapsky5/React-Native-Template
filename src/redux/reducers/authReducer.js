@@ -1,7 +1,8 @@
 import {REDUX} from "../../constants/redux";
 
 const initialState = {
-  activities: []
+  activities: [],
+  index: null,
 };
 
 export const authReducer = (state = initialState, action) => {
@@ -10,6 +11,12 @@ export const authReducer = (state = initialState, action) => {
       return {
         ...state,
         activities: action.payload
+      };
+    }
+    case REDUX.SET_INDEX: {
+      return {
+        ...state,
+        index: action.payload
       };
     }
     default: {

@@ -15,6 +15,7 @@ const HomeScreen = ({ navigation, route }) => {
   // const [activities, setActivities] = useState([]);
 
   const activities = useSelector(state => state.auth.activities);
+  const selIndex = useSelector(state => state.auth.index);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -27,7 +28,8 @@ const HomeScreen = ({ navigation, route }) => {
     console.log(activities);
     if (activities) {
       activities = JSON.parse(activities);
-      dispatch(SetActivities(activities));
+      dispatch(SetActivities(activities[selIndex].data));
+      console.log("ACtivity is now => ", activities[selIndex].data);
     }
     setLoading(false);
   };

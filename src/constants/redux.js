@@ -1,3 +1,4 @@
 export const REDUX = {
   SET_ACTIVITIES: "SET_ACTIVITIES",
+  SET_INDEX: "SET_INDEX",
 };
